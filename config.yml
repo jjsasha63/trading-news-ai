@@ -1,0 +1,43 @@
+env:
+  timezone_market: "America/New_York"
+  db_path: "data/tna.sqlite"
+
+universe:
+  name: "sp500"
+  refresh_days: 30
+
+schedule:
+  decision_time_et: "10:00"
+  trade_execution: "close"   # for Step 3; here it's just part of spec
+
+news:
+  poll_interval_seconds: 600
+  max_items_per_feed: 200
+
+shorting:
+  enabled: true
+  annual_borrow_fee: 0.03          # 3% annualized placeholder
+  no_borrow_probability: 0.01       # 1% of short orders rejected (placeholder)
+
+risk:
+  max_gross_exposure: 1.5
+  max_net_exposure: 0.5
+  max_position_pct: 0.05
+  daily_loss_limit_pct: 0.03
+  max_drawdown_pct: 0.12
+
+prices:
+  provider: "yfinance"
+  start_date: "2016-01-01"
+  end_date: null
+
+db_path: data/tna.sqlite
+
+# Price data provider: stooq (stable), yfinance (often blocked), auto (try yf then stooq)
+price_provider: stooq
+
+# News sources to fetch
+news_sources:
+  - bbc_business
+  - nytimes_business
+

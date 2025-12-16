@@ -1,0 +1,24 @@
+services:
+  trader:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .//app/data      - ./models:/app/models
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app/src
+    command: python scripts/deploy_pipeline.py
+    restart: unless-stopped
+
+  monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .//app/data      - ./models:/app/models
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app/src
+    command: python scripts/monitor_dashboard.py
+    restart: unless-stopped

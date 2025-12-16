@@ -1,0 +1,13 @@
+[project]
+name = "trading-news-ai"
+version = "0.1.0"
+description = "Trading News AI - News-based trading signals"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "pyyaml",
+    "asyncio-mqtt",
+    # add any other THIRD-PARTY libs you use (requests, aiohttp, etc.)
+]

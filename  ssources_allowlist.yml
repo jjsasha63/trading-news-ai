@@ -1,0 +1,23 @@
+rss_feeds:
+  - name: "bbc_top"
+    source: "BBC"
+    url: "https://feeds.bbci.co.uk/news/rss.xml"
+  - name: "bbc_business"
+    source: "BBC"
+    url: "https://feeds.bbci.co.uk/news/business/rss.xml"
+  - name: "bbc_world"
+    source: "BBC"
+    url: "https://feeds.bbci.co.uk/news/world/rss.xml"
+
+  # SEC structured disclosure RSS index page:
+  # You can later add specific SEC feed URLs you choose from this SEC page.
+  - name: "sec_structured_rss_index"
+    source: "SEC"
+    url: "https://www.sec.gov/structureddata/rss-feeds"
+
+  # Example allowlist — add your RSS feeds here
+  - source: "Reuters"
+    url: "https://www.reuters.com/tools/rss"
+  - source: "CNBC"
+    url: "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+

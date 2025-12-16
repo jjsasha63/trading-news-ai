@@ -1,0 +1,5 @@
+rss_feeds:
+  - source: BBC Business
+    url: https://feeds.bbci.co.uk/news/business/rss.xml
+  - source: NYTimes Business
+    url: https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
