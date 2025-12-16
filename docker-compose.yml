@@ -3,22 +3,37 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: trading-news-trader
     volumes:
       - .//app/data      - ./models:/app/models
+      - ./config.yml:/app/config.yml
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app/src
-    command: python scripts/deploy_pipeline.py
+    command: python scripts/deploy_pipeline.py --loop --sleep-seconds 3600
     restart: unless-stopped
+    networks:
+      - trading-net
 
   monitor:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: trading-news-monitor
     volumes:
       - .//app/data      - ./models:/app/models
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app/src
+    ports:
+      - "8050:8050"
     command: python scripts/monitor_dashboard.py
     restart: unless-stopped
+    networks:
+      - trading-net
+    depends_on:
+      - trader
+
+networks:
+  trading-net:
+    driver: bridge

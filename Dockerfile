@@ -2,24 +2,24 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# System deps (kept minimal)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python deps first (better cache)
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source
-COPY src /app/src
-COPY scripts /app/scripts
-COPY config.yml /app/config.yml
-COPY sources_allowlist.yml /app/sources_allowlist.yml
-COPY SPEC.md /app/SPEC.md
+# Copy source code
+COPY src/ ./src/
+COPY scripts/ ./scripts/
+COPY config.yml ./
 
-# Make package importable
+# Set Python path
 ENV PYTHONPATH=/app/src
 
-# Default command (override per-service in compose)
-CMD ["python", "scripts/run_backtest.py"]
+# Create data and models directories
+RUN mkdir -p /app/data /app/models
+
+CMD ["python", "scripts/deploy_pipeline.py", "--loop", "--sleep-seconds", "3600"]
