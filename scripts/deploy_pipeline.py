@@ -41,7 +41,7 @@ def pipeline_steps(start: str, end: str) -> list[Step]:
     return [
         Step("Init DB", "scripts/init_db.py", []),
         Step("Backfill universe", "scripts/backfill_universe.py", []),
-        Step("Backfill prices", "scripts/backfill_prices.py", ["--provider", "stooq"]),
+        Step("Backfill prices", "scripts/backfill_prices.py", ["--provider", "yahoo"]),
         Step("Ingest news", "scripts/ingest_news_once.py", []),
         Step("Normalize news", "scripts/normalize_news.py", []),
         Step("Build features", "scripts/build_features.py", []),

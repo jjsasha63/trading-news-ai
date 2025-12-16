@@ -1,3 +1,4 @@
+import numpy as np
 from __future__ import annotations
 from datetime import date
 from typing import Dict
@@ -11,7 +12,7 @@ class NewsMLStrategy:
     
     def generate_signals(self, dt: date, universe: Dict[str, dict]) -> Dict[str, float]:
         """Generate target weights from news model predictions"""
-        date_str = dt.date().isoformat()
+        date_str = dt.isoformat()
         signals = {}
         
         # Get features for all symbols
