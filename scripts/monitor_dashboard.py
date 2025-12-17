@@ -27,7 +27,7 @@ def get_db_stats() -> dict:
         stats = {}
         
         # Universe stats
-        cursor = conn.execute("SELECT COUNT(*) FROM universe_snapshots")
+        cursor = conn.execute("SELECT COUNT(*) FROM universe_membership")
         stats["universe_symbols"] = cursor.fetchone()[0]
         
         # Prices stats
@@ -41,7 +41,7 @@ def get_db_stats() -> dict:
         
         # News stats
         cursor = conn.execute("""
-            SELECT COUNT(*), MAX(published_at)
+            SELECT COUNT(*), MAX(published_time_utc)
             FROM news_raw
         """)
         row = cursor.fetchone()
@@ -58,36 +58,42 @@ def get_db_stats() -> dict:
         stats["latest_features"] = row[1] if row[1] else "N/A"
         
         # Backtest results
-        cursor = conn.execute("""
+        try:
+            cursor = conn.execute("""
             SELECT run_id, start_date, end_date, total_return, sharpe_ratio, max_drawdown
             FROM backtest_results
             ORDER BY run_id DESC
             LIMIT 1
         """)
-        row = cursor.fetchone()
-        if row:
-            stats["latest_backtest"] = {
-                "run_id": row[0],
-                "period": f"{row[1]} to {row[2]}",
-                "total_return": f"{row[3]:.2%}" if row[3] else "N/A",
-                "sharpe": f"{row[4]:.2f}" if row[4] else "N/A",
-                "max_dd": f"{row[5]:.2%}" if row[5] else "N/A",
-            }
-        else:
+            row = cursor.fetchone()
+            if row:
+                stats["latest_backtest"] = {
+                    "run_id": row[0],
+                    "period": f"{row[1]} to {row[2]}",
+                    "total_return": f"{row[3]:.2%}" if row[3] else "N/A",
+                    "sharpe": f"{row[4]:.2f}" if row[4] else "N/A",
+                    "max_dd": f"{row[5]:.2%}" if row[5] else "N/A",
+                }
+            else:
+                stats["latest_backtest"] = None
+        except:
             stats["latest_backtest"] = None
         
         # Recent signals
-        cursor = conn.execute("""
-            SELECT symbol, date, signal, score
-            FROM signals
-            WHERE date >= date('now', '-7 days')
-            ORDER BY date DESC, score DESC
-            LIMIT 10
-        """)
-        stats["recent_signals"] = [
-            {"symbol": r[0], "date": r[1], "signal": r[2], "score": f"{r[3]:.3f}"}
-            for r in cursor.fetchall()
-        ]
+        try:
+            cursor = conn.execute("""
+                SELECT symbol, date, signal, score
+                FROM signals
+                WHERE date >= date('now', '-7 days')
+                ORDER BY date DESC, score DESC
+                LIMIT 10
+            """)
+            stats["recent_signals"] = [
+                {"symbol": r[0], "date": r[1], "signal": r[2], "score": f"{r[3]:.3f}"}
+                for r in cursor.fetchall()
+            ]
+        except Exception:
+            stats["recent_signals"] = []
         
         return stats
         
@@ -200,9 +206,9 @@ def render_html(stats: dict) -> str:
     </head>
     <body>
         <div class="container">
-            <h1>📊 Trading News AI - Live Monitor</h1>
+            <h1>Trading News AI - Live Monitor</h1>
             <p class="timestamp">Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Auto-refresh: 30s</p>
-            <p><span class="status">● RUNNING</span></p>
+            <p><span class="status">RUNNING</span></p>
             
             <h2>Pipeline Statistics</h2>
             <table>

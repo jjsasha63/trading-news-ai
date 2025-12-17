@@ -13,3 +13,14 @@ if __name__ == "__main__":
     store = SQLiteStore(db_path=Path(cfg.db_path))
     store.init_db()
     print(f"Initialized DB at {cfg.db_path}")
+
+    # Paper trading state
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS paper_trading_state (
+            date TEXT PRIMARY KEY,
+            equity REAL NOT NULL,
+            cash REAL NOT NULL,
+            num_positions INTEGER NOT NULL,
+            total_return REAL NOT NULL
+        )
+    """)

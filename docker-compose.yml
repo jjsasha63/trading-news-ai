@@ -5,15 +5,30 @@ services:
       dockerfile: Dockerfile
     container_name: trading-news-trader
     volumes:
-      - .//app/data      - ./models:/app/models
-      - ./config.yml:/app/config.yml
+      - type: bind
+        source: ./data
+        target: /app/data
+      - type: bind
+        source: ./models
+        target: /app/models
+      - type: bind
+        source: ./config.yml
+        target: /app/config.yml
+      - type: bind
+        source: ./sources_allowlist.yml
+        target: /app/sources_allowlist.yml
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app/src
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_API_SECRET=${ALPACA_API_SECRET}
+      - ALPACA_PAPER=${ALPACA_PAPER}
     command: python scripts/deploy_pipeline.py --loop --sleep-seconds 3600
     restart: unless-stopped
     networks:
       - trading-net
+    env_file:
+      - .env
 
   monitor:
     build:
@@ -21,7 +36,14 @@ services:
       dockerfile: Dockerfile
     container_name: trading-news-monitor
     volumes:
-      - .//app/data      - ./models:/app/models
+      - type: bind
+        source: ./data
+        target: /app/data
+        
+      - type: bind
+        source: ./models
+        target: /app/models
+        
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app/src

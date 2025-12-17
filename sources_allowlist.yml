@@ -1,5 +1,20 @@
 rss_feeds:
-  - source: BBC Business
-    url: https://feeds.bbci.co.uk/news/business/rss.xml
-  - source: NYTimes Business
-    url: https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+  - name: "Reuters Business"
+    url: "https://feeds.reuters.com/reuters/businessNews"
+    enabled: true
+  
+  - name: "CNBC Top News"
+    url: "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+    enabled: true
+  
+  - name: "MarketWatch"
+    url: "https://feeds.marketwatch.com/marketwatch/marketpulse/"
+    enabled: true
+  
+  - name: "Yahoo Finance"
+    url: "https://finance.yahoo.com/news/rssindex"
+    enabled: true
+  
+  - name: "Seeking Alpha"
+    url: "https://seekingalpha.com/feed.xml"
+    enabled: true

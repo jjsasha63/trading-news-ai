@@ -23,7 +23,7 @@ risk:
   max_gross_exposure: 1.5
   max_net_exposure: 0.5
   max_position_pct: 0.05
-  daily_loss_limit_pct: 0.03
+  daily_loss_limit_pct: 0.10
   max_drawdown_pct: 0.12
 
 prices:
