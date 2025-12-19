@@ -117,7 +117,7 @@ def _load_prices(store: SQLiteStore, start_date: str, end_date: str, universe_sy
         return df
 
     df = df[df["symbol"].isin(universe_syms)].copy()
-    df["date"] = pd.to_datetime(df["date"])
+    df["date"] = pd.to_datetime(df["date"], format="ISO8601")
     df = df.sort_values(["symbol", "date"])
     df = df[df["close"].notna()]
     return df

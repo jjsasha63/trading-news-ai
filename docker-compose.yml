@@ -3,30 +3,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: trading-news-trader
+    command: bash -c "python scripts/deploy_pipeline.py --start 2024-01-01 --end $(date +%Y-%m-%d) --loop --sleep-seconds 3600"
     volumes:
-      - .//app/data      - ./models:/app/models
-      - ./config.yml:/app/config.yml
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app/src
-    command: python scripts/deploy_pipeline.py --loop --sleep-seconds 3600
+      - .:/app
     restart: unless-stopped
     networks:
       - trading-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
 
   monitor:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: trading-news-monitor
-    volumes:
-      - .//app/data      - ./models:/app/models
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app/src
-    ports:
-      - "8050:8050"
     command: python scripts/monitor_dashboard.py
     restart: unless-stopped
     networks:

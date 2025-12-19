@@ -7,7 +7,7 @@ import yaml
 @dataclass
 class Config:
     db_path: str
-    price_provider: str = "stooq"  # default to working provider
+    price_provider: str = "yahoo"  # default to working provider
     news_sources: list[str] | None = None
 
 
@@ -22,6 +22,6 @@ def load_config(path: str = "config.yml") -> Config:
     
     return Config(
         db_path=raw.get("db_path", "data/tna.sqlite"),
-        price_provider=raw.get("price_provider", "stooq"),
+        price_provider=raw.get("price_provider", "yahoo"),
         news_sources=raw.get("news_sources", ["bbc_business", "nytimes_business"]),
     )

@@ -1,8 +1,8 @@
 import sys
 from pathlib import Path
+import sqlite3
 
-# ensure project src/ is on PYTHONPATH when running scripts directly
-_repo_root = Path(__file__).resolve().parents[1]  # repo root (parent of scripts/)
+_repo_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_repo_root / "src"))
 
 from tna.config import load_config

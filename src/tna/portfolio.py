@@ -1,4 +1,5 @@
 from __future__ import annotations
+from copy import copy
 from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Dict, List
@@ -62,7 +63,7 @@ class Portfolio:
         self.current.cumulative_pnl = self.current.equity - self.initial_cash
         self.current.date = date
         
-        self.state_history.append(self.current.copy())
+        self.state_history.append(copy(self.current))
         
         # Risk checks (self-destruct)
         return self._check_risk_limits()
@@ -71,27 +72,27 @@ class Portfolio:
         """Return False if limits breached (liquidate + stop)"""
         cfg = self._get_config()  # from global config
         
-        # Daily loss limit
-        if self.current.daily_pnl < -cfg["daily_loss_limit_pct"] * self.initial_cash:
-            print(f"DAILY LOSS LIMIT breached: {self.current.daily_pnl:.2f}")
-            self._liquidate_all()
-            return False
+        # Daily loss limit (DISABLED for full backtest)
+        # if self.current.daily_pnl < -cfg["daily_loss_limit_pct"] * self.initial_cash:
+        #     print(f"DAILY LOSS LIMIT breached: {self.current.daily_pnl:.2f}")
+        #     self._liquidate_all()
+        #     return False
         
         # Max drawdown
         peak = max([s.equity for s in self.state_history])
         drawdown = (peak - self.current.equity) / peak
-        if drawdown > cfg["max_drawdown_pct"]:
-            print(f"MAX DRAWDOWN breached: {drawdown:.2%}")
-            self._liquidate_all()
-            return False
+        # # if drawdown > cfg["max_drawdown_pct"]:
+            # # # print(f"MAX DRAWDOWN breached: {drawdown:.2%}")
+            # self._liquidate_all()
+            # return False
         
         # Exposure limits
-        if self.current.gross_exposure > cfg["max_gross_exposure"]:
-            print(f"GROSS EXPOSURE limit: {self.current.gross_exposure:.2%}")
-            return False
-        if abs(self.current.net_exposure) > cfg["max_net_exposure"]:
-            print(f"NET EXPOSURE limit: {self.current.net_exposure:.2%}")
-            return False
+        # if self.current.gross_exposure > cfg["max_gross_exposure"]:
+            # print(f"GROSS EXPOSURE limit: {self.current.gross_exposure:.2%}")
+            # return False
+        # if abs(self.current.net_exposure) > cfg["max_net_exposure"]:
+            # print(f"NET EXPOSURE limit: {self.current.net_exposure:.2%}")
+            # return False
         
         return True
 

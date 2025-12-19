@@ -164,7 +164,7 @@ def _yf_normalize_download_df(df: pd.DataFrame, requested: list[str]) -> pd.Data
         return pd.DataFrame(columns=["symbol", "date", "open", "high", "low", "close", "adj_close", "volume"])
 
     long = (
-        out.stack(level=0)
+        out.stack(level=0, future_stack=True)
            .rename_axis(["date", "symbol"])
            .reset_index()
     )
@@ -200,7 +200,7 @@ def _yf_normalize_download_df(df: pd.DataFrame, requested: list[str]) -> pd.Data
 
 def download_daily_prices(
     *,
-    provider: str = "stooq",
+    provider: str = "yahoo",
     symbols: list[str],
     start: str,
     end: str,
