@@ -1,30 +1,16 @@
 services:
-  trader:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: bash -c "python scripts/deploy_pipeline.py --start 2024-01-01 --end $(date +%Y-%m-%d) --loop --sleep-seconds 3600"
+  backtest:
+    build: .
     volumes:
-      - .:/app
-    restart: unless-stopped
-    networks:
-      - trading-net
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    env_file:
-      - .env
+      - .//app/data
+      - ./models:/app/models
+    command: python3 run.py scripts/trading/run_backtest.py --start 2020-01-01
 
-  monitor:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: python scripts/monitor_dashboard.py
-    restart: unless-stopped
-    networks:
-      - trading-net
-    depends_on:
-      - trader
-
-networks:
-  trading-net:
-    driver: bridge
+  paper:
+    build: .
+    volumes:
+      - .//app/data
+      - ./models:/app/models
+    ports:
+      - "8001:8000"
+    command: python3 run.py scripts/trading/paper_trader.py

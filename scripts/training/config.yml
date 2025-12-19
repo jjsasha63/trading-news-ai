@@ -41,9 +41,3 @@ news_sources:
   - bbc_business
   - nytimes_business
 
-
-# Yahoo Finance settings (to avoid rate limiting)
-yahoo:
-  rate_limit_per_hour: 2000
-  requests_per_batch: 50
-  delay_between_batches: 5  # seconds

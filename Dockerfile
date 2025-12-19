@@ -1,25 +1,18 @@
 FROM python:3.12-slim
-
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    sqlite3 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y build-essential curl && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml ./
+COPY src ./src
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -e . && \
+    pip install alpaca-py requests-cache redis
 
-# Copy source code
-COPY src/ ./src/
-COPY scripts/ ./scripts/
-COPY config.yml ./
+COPY scripts ./scripts
+COPY config.yml sources_allowlist.yml run.py Makefile ./
 
-# Set Python path
-ENV PYTHONPATH=/app/src
+RUN mkdir -p data models logs
 
-# Create data and models directories
-RUN mkdir -p /app/data /app/models
-
-CMD ["python", "scripts/deploy_pipeline.py", "--loop", "--sleep-seconds", "3600"]
+EXPOSE 8000
+CMD ["python3", "run.py", "scripts/trading/paper_trader.py"]

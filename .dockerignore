@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+.DS_Store
+*.log
+backup-*.tar.gz
+.cleanup-backup/
+docker-compose.override.yml

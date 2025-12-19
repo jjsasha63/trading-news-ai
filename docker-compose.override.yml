@@ -1,4 +1,0 @@
-version: '3.8'
-services:
-  trader:
-    command: python /app/scripts/run_live_paper_trader.py
