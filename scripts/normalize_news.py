@@ -156,3 +156,48 @@ def normalize_rows(raw_rows: list[dict], sp500_dict: dict[str, dict]) -> list[di
             },
         })
     return out
+
+if __name__ == "__main__":
+    import json
+    cfg = load_config("config.yml")
+    store = SQLiteStore(db_path=Path(cfg.db_path))
+    
+    # Get S&P 500 universe
+    with store.connect() as con:
+        rows = con.execute("SELECT symbol, company_name FROM universe_membership").fetchall()
+        sp500_dict = {row[0]: {"company_name": row[1]} for row in rows}
+    
+    # Get unprocessed news
+    with store.connect() as con:
+        raw_rows = con.execute("""
+            SELECT id, source, feed_url, article_url, title, summary, 
+                   published_time_utc, fetched_time_utc, raw_json
+            FROM news_raw
+            WHERE id NOT IN (SELECT id FROM news_normalized)
+        """).fetchall()
+        
+        raw_dicts = [dict(zip(
+            ["id", "source", "feed_url", "article_url", "title", "summary", 
+             "published_time_utc", "fetched_time_utc", "raw_json"], 
+            row)) for row in raw_rows]
+    
+    print(f"Processing {len(raw_dicts)} unprocessed news articles...")
+    normalized = normalize_rows(raw_dicts, sp500_dict)
+    
+    # Insert into news_normalized
+    with store.connect() as con:
+        for n in normalized:
+            con.execute("""
+                INSERT OR REPLACE INTO news_normalized 
+                (id, source, article_url, published_time_utc, fetched_time_utc,
+                 title, summary, text_clean, tickers_json, mapping_debug_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                n["id"], n["source"], n.get("article_url"),
+                n.get("published_time_utc"), n.get("fetched_time_utc"),
+                n.get("title"), n.get("summary"), n["text_clean"],
+                json.dumps(n["tickers"]), json.dumps(n["mapping_debug"])
+            ))
+        con.commit()
+    
+    print(f"✅ Normalized {len(normalized)} articles")

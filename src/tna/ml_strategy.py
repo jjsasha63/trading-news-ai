@@ -97,3 +97,25 @@ class NewsMLStrategy:
         )
         
         return self.risk_manager.apply_risk_limits(signals, metrics, vols)
+
+    def generate_signals_live(self, universe, prices):
+        from datetime import datetime
+        import pandas as pd
+        today = datetime.utcnow().date()
+        symbols = list(universe)
+        if not symbols:
+            return pd.DataFrame(columns=["symbol", "signal", "confidence"])
+        with self.store.connect() as con:
+            placeholders = ",".join("?" * len(symbols))
+            sql = f"""SELECT symbol, news_count, news_sentiment_mean, news_sentiment_pos, news_sentiment_neg, news_volume_spike, sentiment_change_1d, price_ret1d, price_ret5d, price_vol5d, distance_ma5 FROM features_daily WHERE date = ? AND symbol IN ({placeholders})"""
+            rows = con.execute(sql, [today.isoformat()] + symbols).fetchall()
+        if not rows:
+            return pd.DataFrame(columns=["symbol", "signal", "confidence"])
+        X = [[row[i] or 0 for i in range(1, 11)] for row in rows]
+        sym_order = [row[0] for row in rows]
+        proba = self.model.predict_proba(X)
+        predictions = proba[:, 1]
+        raw_signals = {sym: (pred - 0.5) * 2 for sym, pred in zip(sym_order, predictions)}
+        signals_weights = self._apply_risk_management(raw_signals, today, {s: {} for s in sym_order})
+        data = [{"symbol": s, "signal": (1 if signals_weights.get(s,0)>0 else (-1 if signals_weights.get(s,0)<0 else 0)), "confidence": min(1.0, abs(signals_weights.get(s,0))*10)} for s in sym_order]
+        return pd.DataFrame(data, columns=["symbol", "signal", "confidence"])

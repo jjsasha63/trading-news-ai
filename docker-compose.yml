@@ -3,30 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: trading-news-trader
+    command: bash -c "python scripts/deploy_pipeline.py --start 2024-01-01 --end $(date +%Y-%m-%d) --loop --sleep-seconds 3600"
     volumes:
-      - type: bind
-        source: ./data
-        target: /app/data
-      - type: bind
-        source: ./models
-        target: /app/models
-      - type: bind
-        source: ./config.yml
-        target: /app/config.yml
-      - type: bind
-        source: ./sources_allowlist.yml
-        target: /app/sources_allowlist.yml
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app/src
-      - ALPACA_API_KEY=${ALPACA_API_KEY}
-      - ALPACA_API_SECRET=${ALPACA_API_SECRET}
-      - ALPACA_PAPER=${ALPACA_PAPER}
-    command: python scripts/deploy_pipeline.py --loop --sleep-seconds 3600
+      - .:/app
     restart: unless-stopped
     networks:
       - trading-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
       - .env
 
@@ -34,21 +18,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: trading-news-monitor
-    volumes:
-      - type: bind
-        source: ./data
-        target: /app/data
-        
-      - type: bind
-        source: ./models
-        target: /app/models
-        
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app/src
-    ports:
-      - "8050:8050"
     command: python scripts/monitor_dashboard.py
     restart: unless-stopped
     networks:
